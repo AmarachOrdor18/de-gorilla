@@ -231,7 +231,6 @@
 
 <main>
 
-  <!-- ── HOME ── -->
   <div id="page-home" class="section active">
     <div style="padding-top:16px; margin-bottom:48px;">
       <div class="hero-title">Gorilla<br><span>Ready.</span></div>
@@ -255,7 +254,6 @@
     </div>
   </div>
 
-  <!-- ── LEARN ── -->
   <div id="page-learn" class="section">
     <div id="learn-menu">
       <div style="margin-bottom:28px;">
@@ -291,7 +289,6 @@
     </div>
   </div>
 
-  <!-- ── QUIZ HOME ── -->
   <div id="page-quiz-home" class="section">
     <div style="margin-bottom:36px; padding-top:8px;">
       <div class="hero-title" style="font-size:clamp(28px,4vw,48px);">Practice<br><span>Test</span></div>
@@ -335,7 +332,6 @@
     </div>
   </div>
 
-  <!-- ── QUIZ ── -->
   <div id="page-quiz" class="section">
     <div class="quiz-meta" style="justify-content: space-between;">
       <button class="back-btn" onclick="quitQuiz()">← Quit</button>
@@ -352,7 +348,6 @@
     </div>
   </div>
 
-  <!-- ── RESULTS ── -->
   <div id="page-results" class="section">
     <div class="score-hero">
       <div class="score-ring">
@@ -439,7 +434,6 @@ const LEARN_TOPICS = [
     subtopics: ['File System & Permissions', 'bash Scripting & Automation', 'SSH & Remote Access', 'Package Management & Dependencies', 'Process Management & Monitoring', 'Networking & Debugging Tools']
   }
 ];
-
 
 // ════════════════════════════════════════
 // PAGE NAVIGATION
@@ -984,7 +978,7 @@ function quitQuiz() {
 }
 
 function escapeHtml(str) {
-  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&quot;');
 }
 
 // ── INIT
@@ -995,12 +989,44 @@ showPage('home');
 // ════════════════════════════════════════
 // TEXT-TO-SPEECH
 // ════════════════════════════════════════
-let ttsState = { synth: null, utterance: null, isPaused: false, fullText: '' };
+let ttsState = { synth: null, utterance: null, isPaused: false, fullText: '', voices: [] };
 
 function initTTS() {
   if (!ttsState.synth) {
     ttsState.synth = window.speechSynthesis;
+    // Preload voices
+    ttsState.voices = ttsState.synth.getVoices();
+    if (ttsState.voices.length === 0) {
+      ttsState.synth.onvoiceschanged = () => {
+        ttsState.voices = ttsState.synth.getVoices();
+      };
+    }
   }
+}
+
+function getFemaleVoice() {
+  if (ttsState.voices.length === 0) {
+    ttsState.voices = ttsState.synth.getVoices();
+  }
+  
+  // Try to find common female voices (Microsoft Zira, Google Female, Apple Samantha/Victoria, etc)
+  const femaleNames = ['female', 'samantha', 'zira', 'victoria', 'karen', 'tessa', 'veena', 'moira'];
+  
+  // 1. Prioritize English female voices
+  let voice = ttsState.voices.find(v => 
+    v.lang.startsWith('en') && 
+    femaleNames.some(name => v.name.toLowerCase().includes(name))
+  );
+  
+  // 2. Broaden search to any female voice if no english one found
+  if (!voice) {
+    voice = ttsState.voices.find(v => 
+      femaleNames.some(name => v.name.toLowerCase().includes(name))
+    );
+  }
+  
+  // 3. Fallback to any english voice, or finally the system default
+  return voice || ttsState.voices.find(v => v.lang.startsWith('en')) || ttsState.voices[0];
 }
 
 function extractTextFromLesson() {
@@ -1008,15 +1034,8 @@ function extractTextFromLesson() {
   const bodyDiv = contentDiv.querySelector('.lesson-body');
   if (!bodyDiv) return '';
   
-  // Extract all text content, preserve structure
-  let text = '';
-  bodyDiv.querySelectorAll('h3, p, li, code, pre').forEach(el => {
-    let nodeText = el.textContent.trim();
-    if (nodeText) {
-      text += nodeText + '. ';
-    }
-  });
-  return text;
+  // Using innerText neatly pulls human-readable text top-down without duplicating nested tags 
+  return bodyDiv.innerText || bodyDiv.textContent;
 }
 
 function speakLesson() {
@@ -1035,8 +1054,15 @@ function speakLesson() {
   ttsState.isPaused = false;
   
   ttsState.utterance = new SpeechSynthesisUtterance(text);
+  
+  // Set the voice to a female profile
+  const selectedVoice = getFemaleVoice();
+  if (selectedVoice) {
+    ttsState.utterance.voice = selectedVoice;
+  }
+  
   ttsState.utterance.rate = parseFloat(document.getElementById('tts-speed').value) || 1;
-  ttsState.utterance.pitch = 1;
+  ttsState.utterance.pitch = 1; // Slightly adjust if you want a naturally higher pitch
   ttsState.utterance.volume = 1;
   
   ttsState.utterance.onstart = () => {
@@ -1077,6 +1103,7 @@ function stopLesson() {
 
 // Update speech rate when changed
 document.addEventListener('DOMContentLoaded', () => {
+  initTTS(); // Preload voices immediately on page load
   const speedSelect = document.getElementById('tts-speed');
   if (speedSelect) {
     speedSelect.addEventListener('change', (e) => {
