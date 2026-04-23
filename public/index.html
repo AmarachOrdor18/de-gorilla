@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DE Gorilla Prep</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1a1a24;
+    --border: #2a2a3a;
+    --accent: #00ff88;
+    --accent2: #ff6b35;
+    --accent3: #7c6bff;
+    --text: #e8e8f0;
+    --muted: #6b6b88;
+    --correct: #00ff88;
+    --wrong: #ff4466;
+    --warn: #ffbb00;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 20%, rgba(0,255,136,0.04) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(124,107,255,0.04) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+
+  header { position: relative; z-index: 10; padding: 20px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: rgba(19,19,26,0.9); backdrop-filter: blur(12px); gap: 12px; flex-wrap: wrap; }
+  .logo { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; }
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab { padding: 8px 18px; border-radius: 8px; border: 1px solid transparent; background: transparent; color: var(--muted); cursor: pointer; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; transition: all 0.15s; }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { background: var(--surface2); border-color: var(--border); color: var(--accent); }
+  .stats-bar { display: flex; gap: 20px; font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); }
+  .stat-val { color: var(--accent); font-weight: 700; }
+
+  main { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+  
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    header { padding: 16px 20px; }
+    .logo { font-size: 11px; letter-spacing: 2px; }
+    .nav-tabs { gap: 2px; }
+    .nav-tab { padding: 6px 12px; font-size: 11px; }
+    .stats-bar { gap: 12px; font-size: 10px; }
+    main { padding: 32px 16px 80px; }
+    .hero-title { font-size: clamp(28px, 5vw, 48px); }
+    .mode-grid { grid-template-columns: 1fr; }
+    .learn-topic-grid { grid-template-columns: 1fr; }
+    .question-card { padding: 20px; }
+    .lesson-content { padding: 20px; }
+    .action-row { flex-direction: column; gap: 8px; }
+    .btn { padding: 10px 16px; font-size: 13px; width: 100%; }
+  }
+  
+  @media (max-width: 480px) {
+    header { padding: 12px 16px; }
+    .logo { font-size: 10px; }
+    .nav-tab { padding: 6px 10px; font-size: 10px; }
+    .stats-bar { flex-direction: column; gap: 4px; }
+    main { padding: 24px 12px 60px; }
+    .hero-sub { font-size: 12px; margin-bottom: 32px; }
+    .mode-card { padding: 20px 16px; }
+    .topic-grid, .level-row { gap: 8px; }
+    .topic-btn, .level-btn { padding: 6px 12px; font-size: 10px; }
+    .question-text { font-size: 15px; }
+    .option-item { padding: 12px 14px; font-size: 13px; gap: 10px; }
+    .lesson-body h3 { font-size: 16px; margin: 20px 0 10px; }
+    .lesson-body p { font-size: 13px; margin-bottom: 10px; }
+    .lesson-body code { font-size: 11px; padding: 2px 5px; }
+    .lesson-body pre { padding: 14px; font-size: 11px; }
+    .subtopic-tabs { gap: 4px; margin-bottom: 20px; }
+    .stab { padding: 6px 12px; font-size: 10px; }
+    .lesson-nav { flex-direction: column; gap: 8px; }
+    .lesson-nav .btn { width: 100%; }
+  }
+
+  /* ─── SECTIONS ─── */
+  .section { display: none; animation: fadeIn 0.4s ease; }
+  .section.active { display: block; }
+
+  /* ─── HOME ─── */
+  .hero-title { font-size: clamp(36px, 6vw, 68px); font-weight: 800; line-height: 1; margin-bottom: 16px; }
+  .hero-title span { color: var(--accent); }
+  .hero-sub { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--muted); margin-bottom: 48px; line-height: 1.7; }
+  .section-label { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px; }
+  .topic-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; }
+  .topic-btn { padding: 8px 16px; border-radius: 100px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-family: 'Space Mono', monospace; font-size: 11px; transition: all 0.15s; }
+  .topic-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(0,255,136,0.08); }
+  .level-row { display: flex; gap: 10px; margin-bottom: 32px; flex-wrap: wrap; }
+  .level-btn { flex: 1; min-width: 120px; padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-family: 'Space Mono', monospace; font-size: 11px; transition: all 0.15s; }
+  .level-btn.active { border-color: var(--accent3); color: var(--accent3); background: rgba(124,107,255,0.1); }
+  .mode-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 40px; }
+  .mode-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px 24px; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+  .mode-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--card-accent, var(--accent)); transform: scaleX(0); transition: transform 0.2s; }
+  .mode-card:hover { border-color: var(--card-accent, var(--accent)); transform: translateY(-2px); }
+  .mode-card:hover::before { transform: scaleX(1); }
+  .mode-icon { font-size: 28px; margin-bottom: 12px; }
+  .mode-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .mode-desc { font-size: 12px; color: var(--muted); font-family: 'Space Mono', monospace; line-height: 1.6; }
+
+  /* ─── LEARN ─── */
+  .learn-intro { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent3); border-radius: 12px; padding: 24px 28px; margin-bottom: 32px; font-size: 14px; line-height: 1.7; color: var(--muted); }
+  .learn-intro strong { color: var(--text); }
+  .learn-topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 32px; }
+  .learn-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; cursor: pointer; transition: all 0.2s; }
+  .learn-card:hover { border-color: var(--accent3); transform: translateY(-2px); }
+  .learn-card-icon { font-size: 24px; margin-bottom: 10px; }
+  .learn-card-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .learn-card-sub { font-size: 11px; color: var(--muted); font-family: 'Space Mono', monospace; line-height: 1.5; }
+  .learn-card-count { font-size: 10px; color: var(--accent3); font-family: 'Space Mono', monospace; margin-top: 10px; }
+
+  /* lesson viewer */
+  .lesson-header { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; }
+  .back-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-family: 'Space Mono', monospace; font-size: 11px; transition: all 0.15s; }
+  .back-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .lesson-title { font-size: 22px; font-weight: 800; }
+
+  .subtopic-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+  .stab { padding: 7px 16px; border-radius: 100px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-family: 'Space Mono', monospace; font-size: 11px; transition: all 0.15s; }
+  .stab.active { border-color: var(--accent); color: var(--accent); background: rgba(0,255,136,0.08); }
+
+  .lesson-content { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 36px; min-height: 300px; }
+  .lesson-content.loading { display: flex; align-items: center; justify-content: center; }
+  .lesson-body h3 { font-size: 18px; font-weight: 700; margin: 28px 0 12px; color: var(--accent); }
+  .lesson-body h3:first-child { margin-top: 0; }
+  .lesson-body p { font-size: 14px; line-height: 1.75; color: var(--text); margin-bottom: 14px; }
+  .lesson-body ul, .lesson-body ol { padding-left: 22px; margin-bottom: 14px; }
+  .lesson-body li { font-size: 14px; line-height: 1.7; color: var(--text); margin-bottom: 6px; }
+  .lesson-body code { font-family: 'Space Mono', monospace; font-size: 12px; background: rgba(124,107,255,0.12); color: var(--accent3); padding: 2px 7px; border-radius: 4px; }
+  .lesson-body pre { background: #0d0d14; border: 1px solid var(--border); border-radius: 8px; padding: 20px; font-family: 'Space Mono', monospace; font-size: 12px; color: #c8d6f0; overflow-x: auto; margin: 16px 0 20px; line-height: 1.7; }
+  .lesson-body blockquote { border-left: 3px solid var(--accent3); padding: 12px 20px; background: rgba(124,107,255,0.06); border-radius: 0 8px 8px 0; margin: 16px 0; font-size: 13px; color: var(--muted); font-family: 'Space Mono', monospace; line-height: 1.6; }
+  .lesson-body .tip { background: rgba(0,255,136,0.06); border: 1px solid rgba(0,255,136,0.15); border-radius: 8px; padding: 14px 18px; margin: 16px 0; font-size: 13px; }
+  .lesson-body .warn-box { background: rgba(255,187,0,0.06); border: 1px solid rgba(255,187,0,0.2); border-radius: 8px; padding: 14px 18px; margin: 16px 0; font-size: 13px; }
+  .lesson-body table { width: 100%; border-collapse: collapse; margin: 16px 0 20px; font-size: 13px; }
+  .lesson-body th { background: var(--surface2); padding: 10px 14px; text-align: left; border: 1px solid var(--border); color: var(--accent3); font-family: 'Space Mono', monospace; font-size: 11px; }
+  .lesson-body td { padding: 10px 14px; border: 1px solid var(--border); line-height: 1.5; }
+  .lesson-body tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  .lesson-nav { display: flex; justify-content: space-between; margin-top: 24px; }
+  .btn { padding: 12px 24px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text); font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-primary { background: var(--accent); color: #0a0a0f; border-color: var(--accent); }
+  .btn-primary:hover { background: #00e07a; border-color: #00e07a; color: #0a0a0f; }
+  .btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+
+  /* ─── QUIZ ─── */
+  .quiz-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+  .q-counter { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--muted); }
+  .q-counter span { color: var(--text); font-weight: 700; }
+  .timer { font-family: 'Space Mono', monospace; font-size: 20px; font-weight: 700; color: var(--accent); }
+  .timer.warn { color: var(--warn); }
+  .timer.danger { color: var(--wrong); animation: pulse 0.5s infinite; }
+  .progress-bar { width: 100%; height: 3px; background: var(--border); border-radius: 2px; margin-bottom: 36px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent3)); border-radius: 2px; transition: width 0.4s ease; }
+
+  .question-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin-bottom: 20px; }
+  .q-meta-row { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+  .tag { padding: 3px 10px; border-radius: 100px; font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+  .tag-topic { background: rgba(124,107,255,0.15); color: var(--accent3); }
+  .tag-level { background: rgba(255,107,53,0.15); color: var(--accent2); }
+  .tag-type { background: rgba(0,255,136,0.1); color: var(--accent); }
+  .question-text { font-size: 17px; font-weight: 600; line-height: 1.55; margin-bottom: 8px; }
+  .question-sub { font-size: 13px; color: var(--muted); font-family: 'Space Mono', monospace; margin-bottom: 24px; line-height: 1.6; }
+  pre.code-block { background: #0d0d14; border: 1px solid var(--border); border-radius: 8px; padding: 18px; font-family: 'Space Mono', monospace; font-size: 12px; color: #c8d6f0; overflow-x: auto; margin-bottom: 24px; line-height: 1.7; }
+  .options-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .option-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: all 0.15s; background: transparent; text-align: left; color: var(--text); font-family: 'Syne', sans-serif; font-size: 14px; line-height: 1.5; width: 100%; }
+  .option-item:hover:not(.disabled) { border-color: var(--accent3); background: rgba(124,107,255,0.06); }
+  .option-label { font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; color: var(--muted); min-width: 18px; margin-top: 2px; }
+  .option-item.selected { border-color: var(--accent3); background: rgba(124,107,255,0.1); }
+  .option-item.correct { border-color: var(--correct) !important; background: rgba(0,255,136,0.08) !important; }
+  .option-item.wrong { border-color: var(--wrong) !important; background: rgba(255,68,102,0.08) !important; }
+  .option-item.disabled { cursor: default; pointer-events: none; }
+  .feedback-box { border-radius: 10px; padding: 18px 22px; margin-top: 18px; font-size: 14px; line-height: 1.65; display: none; }
+  .feedback-box.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback-box.correct-fb { background: rgba(0,255,136,0.06); border: 1px solid rgba(0,255,136,0.2); }
+  .feedback-box.wrong-fb { background: rgba(255,68,102,0.06); border: 1px solid rgba(255,68,102,0.2); }
+  .feedback-title { font-weight: 700; font-size: 12px; margin-bottom: 8px; font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: 1px; }
+  .correct-fb .feedback-title { color: var(--correct); }
+  .wrong-fb .feedback-title { color: var(--wrong); }
+  .action-row { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+  .btn-skip { color: var(--muted); font-size: 13px; }
+
+  /* ─── RESULTS ─── */
+  .score-hero { text-align: center; padding: 40px 0 32px; }
+  .score-ring { width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--border); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; position: relative; }
+  .score-ring svg { position: absolute; top: -4px; left: -4px; width: calc(100% + 8px); height: calc(100% + 8px); transform: rotate(-90deg); }
+  .score-ring circle { fill: none; stroke-width: 4; stroke-linecap: round; }
+  .score-num { font-size: 38px; font-weight: 800; color: var(--accent); font-family: 'Space Mono', monospace; }
+  .score-label { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .score-grade { font-size: 20px; font-weight: 700; color: var(--accent2); }
+  .breakdown-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 28px 0; }
+  .breakdown-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; text-align: center; }
+  .breakdown-val { font-size: 26px; font-weight: 800; font-family: 'Space Mono', monospace; margin-bottom: 4px; }
+  .breakdown-label { font-size: 11px; color: var(--muted); font-family: 'Space Mono', monospace; }
+  .review-list { margin-top: 36px; }
+  .review-title { font-size: 13px; font-weight: 700; margin-bottom: 14px; color: var(--muted); font-family: 'Space Mono', monospace; text-transform: uppercase; letter-spacing: 1px; }
+  .review-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; margin-bottom: 10px; }
+  .review-item.r-correct { border-left: 3px solid var(--correct); }
+  .review-item.r-wrong { border-left: 3px solid var(--wrong); }
+  .review-item.r-skipped { border-left: 3px solid var(--muted); }
+  .review-q { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .review-ans { font-size: 12px; color: var(--muted); font-family: 'Space Mono', monospace; }
+  .review-ans span { color: var(--text); }
+
+  .loading-msg { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--muted); text-align: center; padding: 48px; animation: pulse 1.5s infinite; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+  
+  /* Text-to-speech button */
+  .tts-btn { padding: 8px 14px; background: rgba(124,107,255,0.2); border: 1px solid var(--accent3); color: var(--accent3); border-radius: 6px; cursor: pointer; font-size: 12px; font-family: 'Space Mono', monospace; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+  .tts-btn:hover { background: rgba(124,107,255,0.35); border-color: var(--accent); }
+  .tts-btn.playing { background: rgba(0,255,136,0.2); border-color: var(--accent); color: var(--accent); }
+  .tts-controls { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">// DE GORILLA PREP</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('home')">🏠 Home</button>
+    <button class="nav-tab" onclick="showPage('learn')">📚 Learn</button>
+    <button class="nav-tab" onclick="showPage('quiz-home')">🎯 Practice</button>
+  </div>
+  <div class="stats-bar">
+    <span>SCORE <span class="stat-val" id="hdr-score">—</span></span>
+    <span>STREAK <span class="stat-val" id="hdr-streak">0🔥</span></span>
+  </div>
+</header>
+
+<main>
+
+  <!-- ── HOME ── -->
+  <div id="page-home" class="section active">
+    <div style="padding-top:16px; margin-bottom:48px;">
+      <div class="hero-title">Gorilla<br><span>Ready.</span></div>
+      <div class="hero-sub">Data Engineering Assessment Prep · All levels · All topics<br>Learn concepts, then test yourself. Powered by Claude AI.</div>
+    </div>
+    <div class="mode-grid">
+      <div class="mode-card" style="--card-accent:var(--accent3)" onclick="showPage('learn')">
+        <div class="mode-icon">📚</div>
+        <div class="mode-title">Learning Module</div>
+        <div class="mode-desc">Study key DE concepts with AI-generated explanations, examples, and code. Start here if you want to build foundations first.</div>
+      </div>
+      <div class="mode-card" style="--card-accent:var(--accent)" onclick="showPage('quiz-home')">
+        <div class="mode-icon">🎯</div>
+        <div class="mode-title">Practice Test</div>
+        <div class="mode-desc">Jump straight into questions. Practice, timed, or adaptive weak-spot mode. All topics and difficulty levels.</div>
+      </div>
+    </div>
+    <div class="learn-intro">
+      <strong>How to use this tool:</strong><br>
+      New to a topic? Go to <strong>Learn</strong> first — pick a topic and a subtopic, and Claude will generate a full lesson with explanations and examples. Then come back to <strong>Practice</strong> to test yourself. The questions are AI-generated every time so you never see repeats.
+    </div>
+  </div>
+
+  <!-- ── LEARN ── -->
+  <div id="page-learn" class="section">
+    <div id="learn-menu">
+      <div style="margin-bottom:28px;">
+        <div class="hero-title" style="font-size:clamp(28px,4vw,48px);">Learning<br><span>Module</span></div>
+        <div class="hero-sub">Pick a topic to study. Claude generates fresh lessons with real examples and code.</div>
+      </div>
+      <div class="learn-topic-grid" id="learn-topic-grid"></div>
+    </div>
+    <div id="learn-lesson" style="display:none">
+      <div class="lesson-header">
+        <button class="back-btn" onclick="backToLearnMenu()">← Back</button>
+        <div class="lesson-title" id="lesson-title"></div>
+      </div>
+      <div class="subtopic-tabs" id="subtopic-tabs"></div>
+      <div class="tts-controls">
+        <button class="tts-btn" id="tts-play" onclick="speakLesson()">🔊 Listen</button>
+        <button class="tts-btn" id="tts-pause" onclick="pauseLesson()" style="display:none;">⏸ Pause</button>
+        <button class="tts-btn" id="tts-stop" onclick="stopLesson()" style="display:none;">⏹ Stop</button>
+        <select id="tts-speed" style="padding: 8px 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 6px; font-family: 'Space Mono', monospace; font-size: 12px;">
+          <option value="0.75">Slow (0.75x)</option>
+          <option value="1" selected>Normal (1x)</option>
+          <option value="1.25">Fast (1.25x)</option>
+          <option value="1.5">Very Fast (1.5x)</option>
+        </select>
+      </div>
+      <div class="lesson-content" id="lesson-content">
+        <div class="loading-msg">Generating lesson...</div>
+      </div>
+      <div class="lesson-nav">
+        <button class="btn" id="prev-stab-btn" onclick="navigateSubtopic(-1)">← Previous</button>
+        <button class="btn btn-primary" id="next-stab-btn" onclick="navigateSubtopic(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── QUIZ HOME ── -->
+  <div id="page-quiz-home" class="section">
+    <div style="margin-bottom:36px; padding-top:8px;">
+      <div class="hero-title" style="font-size:clamp(28px,4vw,48px);">Practice<br><span>Test</span></div>
+    </div>
+    <div class="section-label">Select topics</div>
+    <div class="topic-grid" id="topic-grid">
+      <button class="topic-btn active" data-topic="SQL">SQL & Optimization</button>
+      <button class="topic-btn active" data-topic="Python">Python for DE</button>
+      <button class="topic-btn active" data-topic="Cloud">Cloud & Platforms</button>
+      <button class="topic-btn active" data-topic="Modeling">Data Modeling</button>
+      <button class="topic-btn active" data-topic="ETL">ETL & Pipelines</button>
+      <button class="topic-btn active" data-topic="Architecture">Architecture</button>
+      <button class="topic-btn active" data-topic="AWS">AWS</button>
+      <button class="topic-btn active" data-topic="Docker">Docker</button>
+      <button class="topic-btn active" data-topic="Airbyte">Airbyte</button>
+      <button class="topic-btn active" data-topic="Linux">Linux</button>
+    </div>
+    <div class="section-label">Difficulty</div>
+    <div class="level-row">
+      <button class="level-btn active" data-level="Junior">Junior / Mid</button>
+      <button class="level-btn active" data-level="Senior">Senior</button>
+      <button class="level-btn active" data-level="Architect">Architect / Principal</button>
+    </div>
+    <div class="section-label">Mode</div>
+    <div class="mode-grid">
+      <div class="mode-card" style="--card-accent:var(--accent)" onclick="startQuiz('practice')">
+        <div class="mode-icon">🎯</div>
+        <div class="mode-title">Practice Mode</div>
+        <div class="mode-desc">Your pace. Instant feedback + full explanation after each question.</div>
+      </div>
+      <div class="mode-card" style="--card-accent:var(--warn)" onclick="startQuiz('timed')">
+        <div class="mode-icon">⏱️</div>
+        <div class="mode-title">Timed Test</div>
+        <div class="mode-desc">90 seconds per question. Real Gorilla assessment pressure.</div>
+      </div>
+      <div class="mode-card" style="--card-accent:var(--accent3)" onclick="startQuiz('weakspot')">
+        <div class="mode-icon">🔍</div>
+        <div class="mode-title">Weak Spot Finder</div>
+        <div class="mode-desc">Adapts difficulty to what you get wrong. Finds your gaps fast.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── QUIZ ── -->
+  <div id="page-quiz" class="section">
+    <div class="quiz-meta" style="justify-content: space-between;">
+      <button class="back-btn" onclick="quitQuiz()">← Quit</button>
+      <div style="display: flex; gap: 16px; align-items: center;">
+        <div class="q-counter">Question <span id="q-num">1</span> of <span id="q-total">10</span></div>
+        <div class="timer" id="timer" style="display:none">1:30</div>
+      </div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div id="question-area"><div class="loading-msg">Generating question...</div></div>
+    <div class="action-row" id="action-row" style="display:none">
+      <button class="btn btn-primary" id="submit-btn" onclick="submitAnswer()">Submit Answer</button>
+      <button class="btn btn-skip" onclick="skipQuestion()">Skip →</button>
+    </div>
+  </div>
+
+  <!-- ── RESULTS ── -->
+  <div id="page-results" class="section">
+    <div class="score-hero">
+      <div class="score-ring">
+        <svg viewBox="0 0 158 158"><circle cx="79" cy="79" r="71" stroke="var(--border)"/><circle id="score-arc" cx="79" cy="79" r="71" stroke="var(--accent)" stroke-dasharray="446.1" stroke-dashoffset="446.1"/></svg>
+        <div class="score-num" id="final-score">0%</div>
+      </div>
+      <div class="score-label">Final Score</div>
+      <div class="score-grade" id="grade-label"></div>
+    </div>
+    <div class="breakdown-grid">
+      <div class="breakdown-card"><div class="breakdown-val" id="r-correct" style="color:var(--correct)">0</div><div class="breakdown-label">Correct</div></div>
+      <div class="breakdown-card"><div class="breakdown-val" id="r-wrong" style="color:var(--wrong)">0</div><div class="breakdown-label">Wrong</div></div>
+      <div class="breakdown-card"><div class="breakdown-val" id="r-skipped" style="color:var(--muted)">0</div><div class="breakdown-label">Skipped</div></div>
+      <div class="breakdown-card"><div class="breakdown-val" id="r-time" style="color:var(--accent2)">0s</div><div class="breakdown-label">Avg Time</div></div>
+    </div>
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="resetQuiz()">Try Again</button>
+      <button class="btn" onclick="showReview()">Review Answers</button>
+      <button class="btn" onclick="goStudyWeakTopics()">🎓 Study Weak Topics</button>
+      <button class="btn" onclick="showPage('learn')">Go Study 📚</button>
+    </div>
+    <div id="weak-topics-section" style="margin-top: 32px; display: none;">
+      <div class="section-label">Recommended Topics to Study</div>
+      <div id="weak-topics-list"></div>
+    </div>
+    <div class="review-list" id="review-list" style="display:none"></div>
+  </div>
+
+</main>
+
+<script>
+// ════════════════════════════════════════
+// LEARN DATA
+// ════════════════════════════════════════
+const LEARN_TOPICS = [
+  {
+    id: 'sql', icon: '🗄️', title: 'SQL & Query Optimization',
+    sub: 'Essential for every DE role. Covers everything from basics to what interviewers actually ask.',
+    subtopics: ['Window Functions', 'CTEs & Subqueries', 'Indexes & Query Optimization', 'NULL Handling & Edge Cases', 'Partitioning & Sharding', 'EXPLAIN / Execution Plans']
+  },
+  {
+    id: 'python', icon: '🐍', title: 'Python for Data Engineering',
+    sub: 'Writing clean, efficient pipeline code. What separates a DE from a data analyst.',
+    subtopics: ['Generators & Iterators', 'Error Handling in Pipelines', 'pandas for DE', 'PySpark Fundamentals', 'Type Hints & Dataclasses', 'Writing Reusable ETL Functions']
+  },
+  {
+    id: 'modeling', icon: '📐', title: 'Data Modeling',
+    sub: 'Star schema, SCDs, Data Vault — know these cold for any DE interview.',
+    subtopics: ['Star Schema vs Snowflake', 'Slowly Changing Dimensions (SCD)', 'Data Vault Basics', '3NF & Normalization', 'Surrogate vs Natural Keys', 'Dimensional Modeling Best Practices']
+  },
+  {
+    id: 'etl', icon: '🔄', title: 'ETL & Pipelines',
+    sub: 'The bread and butter of DE work. Idempotency, CDC, schema drift — all the real stuff.',
+    subtopics: ['Idempotency & Rerunnability', 'Change Data Capture (CDC)', 'Incremental vs Full Load', 'Schema Drift Handling', 'dbt Core Concepts', 'Airflow DAGs & Scheduling']
+  },
+  {
+    id: 'cloud', icon: '☁️', title: 'Cloud & Data Platforms',
+    sub: 'Microsoft Fabric, GCP BigQuery, Databricks, Delta Lake — know the landscape.',
+    subtopics: ['Medallion Architecture', 'Delta Lake & ACID Transactions', 'Microsoft Fabric Overview', 'BigQuery Architecture', 'Databricks & Spark', 'Data Lakehouse vs Warehouse']
+  },
+  {
+    id: 'architecture', icon: '🏗️', title: 'Data Architecture',
+    sub: 'Senior and architect-level questions. System design, tradeoffs, and big picture thinking.',
+    subtopics: ['Lambda vs Kappa Architecture', 'Data Mesh Concepts', 'Event Streaming & Kafka', 'Data Contracts', 'Pipeline Observability', 'Orchestration vs Transformation']
+  },
+  {
+    id: 'aws', icon: '🔶', title: 'AWS for Data Engineering',
+    sub: 'Glue, S3, Redshift, EMR, Lake Formation — AWS data stack end-to-end.',
+    subtopics: ['S3 & Data Lake Design', 'AWS Glue & ETL', 'Redshift Architecture', 'EMR & Spark on AWS', 'AWS Lake Formation', 'Data Pipeline Cost Optimization']
+  },
+  {
+    id: 'docker', icon: '🐳', title: 'Docker & Containerization',
+    sub: 'Containerize pipelines, build reproducible environments, orchestrate with containers.',
+    subtopics: ['Docker Fundamentals', 'Building & Optimizing Images', 'Docker Compose for Local Dev', 'Container Health & Logging', 'Multi-Stage Builds', 'Registry & Image Management']
+  },
+  {
+    id: 'airbyte', icon: '✈️', title: 'Airbyte & Data Integration',
+    sub: 'Low-code ELT platform. Connectors, custom code, incremental syncs, reliability.',
+    subtopics: ['Airbyte Connectors & Sources', 'Transformation in Airbyte', 'Incremental & Full Refresh', 'Connection & Sync Policies', 'Troubleshooting & Monitoring', 'Building Custom Connectors']
+  },
+  {
+    id: 'linux', icon: '🐧', title: 'Linux & Command Line',
+    sub: 'Essential CLI skills. SSH, bash scripting, file operations, system administration.',
+    subtopics: ['File System & Permissions', 'bash Scripting & Automation', 'SSH & Remote Access', 'Package Management & Dependencies', 'Process Management & Monitoring', 'Networking & Debugging Tools']
+  }
+];
+
+
+// ════════════════════════════════════════
+// PAGE NAVIGATION
+// ════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const tabMap = { home: 0, learn: 1, 'quiz-home': 2, quiz: 2, results: 2 };
+  const tabs = document.querySelectorAll('.nav-tab');
+  if (tabMap[id] !== undefined) tabs[tabMap[id]]?.classList.add('active');
+}
+
+// ════════════════════════════════════════
+// LEARN MODULE
+// ════════════════════════════════════════
+let learnState = { topic: null, subtopicIdx: 0, cache: {} };
+
+function initLearnGrid() {
+  const grid = document.getElementById('learn-topic-grid');
+  grid.innerHTML = LEARN_TOPICS.map(t => `
+    <div class="learn-card" onclick="openLesson('${t.id}')">
+      <div class="learn-card-icon">${t.icon}</div>
+      <div class="learn-card-title">${t.title}</div>
+      <div class="learn-card-sub">${t.sub}</div>
+      <div class="learn-card-count">${t.subtopics.length} subtopics</div>
+    </div>`).join('');
+}
+
+function openLesson(topicId) {
+  const topic = LEARN_TOPICS.find(t => t.id === topicId);
+  if (!topic) return;
+  learnState.topic = topic;
+  learnState.subtopicIdx = 0;
+
+  document.getElementById('learn-menu').style.display = 'none';
+  document.getElementById('learn-lesson').style.display = 'block';
+  document.getElementById('lesson-title').textContent = topic.icon + '  ' + topic.title;
+
+  // Render subtopic tabs
+  const tabs = document.getElementById('subtopic-tabs');
+  tabs.innerHTML = topic.subtopics.map((s, i) => `
+    <button class="stab ${i === 0 ? 'active' : ''}" onclick="selectSubtopic(${i})">${s}</button>`).join('');
+
+  loadLesson(0);
+}
+
+function selectSubtopic(idx) {
+  learnState.subtopicIdx = idx;
+  document.querySelectorAll('.stab').forEach((t, i) => t.classList.toggle('active', i === idx));
+  loadLesson(idx);
+  updateLessonNav();
+}
+
+function navigateSubtopic(dir) {
+  const max = learnState.topic.subtopics.length - 1;
+  const next = Math.max(0, Math.min(max, learnState.subtopicIdx + dir));
+  selectSubtopic(next);
+}
+
+function updateLessonNav() {
+  const idx = learnState.subtopicIdx;
+  const max = learnState.topic.subtopics.length - 1;
+  document.getElementById('prev-stab-btn').disabled = idx === 0;
+  document.getElementById('next-stab-btn').textContent = idx === max ? '✓ Done' : 'Next →';
+  if (idx === max) {
+    document.getElementById('next-stab-btn').onclick = () => backToLearnMenu();
+  } else {
+    document.getElementById('next-stab-btn').onclick = () => navigateSubtopic(1);
+  }
+}
+
+async function loadLesson(idx) {
+  const topic = learnState.topic;
+  const subtopic = topic.subtopics[idx];
+  const cacheKey = topic.id + ':' + idx;
+  updateLessonNav();
+
+  const content = document.getElementById('lesson-content');
+  content.className = 'lesson-content loading';
+  content.innerHTML = '<div class="loading-msg">Generating lesson on ' + subtopic + '...</div>';
+
+  if (learnState.cache[cacheKey]) {
+    renderLesson(learnState.cache[cacheKey]);
+    return;
+  }
+
+  const prompt = `You are a senior data engineering instructor. Write a clear, practical lesson on the topic: "${subtopic}" (part of the broader area: "${topic.title}").
+
+This is for someone preparing for a data engineering Gorilla assessment / technical interview. They may be junior to senior level.
+
+Structure your lesson as follows:
+1. **What it is** — plain English explanation, no fluff
+2. **Why it matters in DE interviews** — what interviewers look for
+3. **How it works** — technical depth with concrete examples
+4. **Code example** — real, runnable code (SQL or Python depending on topic). Use a code block.
+5. **Common mistakes / gotchas** — what candidates get wrong
+6. **Quick summary** — 3–5 bullet points to remember
+
+Rules:
+- Be direct and practical. No filler text.
+- Use real-world DE scenarios (pipelines, warehouses, migrations, reporting)
+- Code must be correct and well-commented
+- Keep it focused — not a textbook chapter, but dense with useful info
+- Use markdown: ## for section headers, \`inline code\`, code blocks with triple backticks, **bold** for key terms, > for important callouts
+
+Respond in markdown only. No preamble.`;
+
+  try {
+    const res = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    const md = data.content.map(c => c.text || '').join('');
+    learnState.cache[cacheKey] = md;
+    renderLesson(md);
+  } catch (e) {
+    content.className = 'lesson-content';
+    content.innerHTML = `<div class="loading-msg">Error: ${e.message}. <a href="#" onclick="loadLesson(${idx})" style="color:var(--accent)">Retry</a></div>`;
+  }
+}
+
+function renderLesson(md) {
+  const content = document.getElementById('lesson-content');
+  content.className = 'lesson-content';
+  content.innerHTML = '<div class="lesson-body">' + parseMarkdown(md) + '</div>';
+  saveState();
+}
+
+function parseMarkdown(md) {
+  return md
+    .replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => `<pre>${escapeHtml(code.trim())}</pre>`)
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^# (.+)$/gm, '<h3>$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+    .replace(/^\* (.+)$/gm, '<li>$1</li>')
+    .replace(/^\- (.+)$/gm, '<li>$1</li>')
+    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`)
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/^(?!<[hupbcl])/gm, '')
+    .replace(/<p><\/p>/g, '')
+    .replace(/(<p>)?(<h3>)/g, '$2')
+    .replace(/(<\/h3>)(<\/p>)/g, '$1')
+    .replace(/<p>(<pre>)/g, '$1')
+    .replace(/(<\/pre>)<\/p>/g, '$1')
+    .replace(/<p>(<ul>)/g, '$1')
+    .replace(/(<\/ul>)<\/p>/g, '$1')
+    .replace(/<p>(<blockquote>)/g, '$1')
+    .replace(/(<\/blockquote>)<\/p>/g, '$1');
+}
+
+function backToLearnMenu() {
+  document.getElementById('learn-menu').style.display = 'block';
+  document.getElementById('learn-lesson').style.display = 'none';
+}
+
+// ════════════════════════════════════════
+// QUIZ
+// ════════════════════════════════════════
+let qState = {
+  mode: 'practice', topics: [], levels: [], questions: [],
+  idx: 0, selected: null, answered: false,
+  score: 0, streak: 0, skipped: 0, wrong: 0,
+  history: [], timerInterval: null, timeLeft: 90,
+  timeTaken: [], qStart: null,
+  caseStudy: null, caseStudyQuestionCount: 0,
+  totalQuestions: 10
+};
+
+// ════════════════════════════════════════
+// PERSISTENT STORAGE
+// ════════════════════════════════════════
+function saveState() {
+  localStorage.setItem('degorilla_qstate', JSON.stringify({
+    score: qState.score,
+    streak: qState.streak,
+    skipped: qState.skipped,
+    wrong: qState.wrong,
+    history: qState.history.slice(-50) // Save last 50 questions
+  }));
+  localStorage.setItem('degorilla_learnstate', JSON.stringify({
+    cache: learnState.cache,
+    lastTopic: learnState.topic?.id
+  }));
+}
+
+function loadState() {
+  const saved = localStorage.getItem('degorilla_qstate');
+  if (saved) {
+    const data = JSON.parse(saved);
+    Object.assign(qState, { score: data.score, streak: data.streak, skipped: data.skipped, wrong: data.wrong, history: data.history });
+    document.getElementById('hdr-score').textContent = qState.score ? `${qState.score}/${qState.score + qState.wrong + qState.skipped}` : '—';
+    document.getElementById('hdr-streak').textContent = `${qState.streak}🔥`;
+  }
+  const learnSaved = localStorage.getItem('degorilla_learnstate');
+  if (learnSaved) {
+    const data = JSON.parse(learnSaved);
+    learnState.cache = data.cache || {};
+  }
+}
+
+function clearAllHistory() {
+  if (confirm('Delete all saved progress and history? This cannot be undone.')) {
+    localStorage.removeItem('degorilla_qstate');
+    localStorage.removeItem('degorilla_learnstate');
+    location.reload();
+  }
+}
+
+document.querySelectorAll('.topic-btn').forEach(b => b.addEventListener('click', () => b.classList.toggle('active')));
+document.querySelectorAll('.level-btn').forEach(b => b.addEventListener('click', () => b.classList.toggle('active')));
+
+async function startQuiz(mode) {
+  qState = { mode, questions: [], idx: 0, selected: null, answered: false, score: 0, streak: 0, skipped: 0, wrong: 0, history: [], timerInterval: null, timeLeft: 90, timeTaken: [], qStart: null, caseStudy: null, caseStudyQuestionCount: 0 };
+  qState.topics = [...document.querySelectorAll('.topic-btn.active')].map(b => b.dataset.topic);
+  qState.levels = [...document.querySelectorAll('.level-btn.active')].map(b => b.dataset.level);
+  if (!qState.topics.length) qState.topics = ['SQL','Python','ETL','Cloud','Modeling','Architecture','AWS','Docker','Airbyte','Linux'];
+  if (!qState.levels.length) qState.levels = ['Junior','Senior'];
+  
+  // Set total questions: 10 per topic if multiple topics, else 10
+  qState.totalQuestions = qState.topics.length > 1 ? qState.topics.length * 10 : 10;
+  
+  showPage('quiz');
+  updateProgress();
+  await loadQuestion();
+}
+
+async function loadQuestion() {
+  if (qState.idx >= qState.totalQuestions) { showResults(); return; }
+  qState.answered = false; qState.selected = null;
+  document.getElementById('action-row').style.display = 'none';
+  document.getElementById('question-area').innerHTML = '<div class="loading-msg">Generating question...</div>';
+  document.getElementById('q-num').textContent = qState.idx + 1;
+  document.getElementById('q-total').textContent = qState.totalQuestions;
+  updateProgress();
+
+  // Check if we should start a case study (15% chance, roughly 1 per 10-question test)
+  const shouldCaseStudy = qState.caseStudyQuestionCount === 0 && qState.idx < qState.totalQuestions - 1 && Math.random() < 0.15 && qState.idx % 3 === 0;
+
+  const topic = qState.topics[qState.idx % qState.topics.length];
+  let level = qState.levels[Math.floor(Math.random() * qState.levels.length)];
+  if (qState.mode === 'weakspot' && qState.history.length >= 3) {
+    const recent = qState.history.slice(-3);
+    const wr = recent.filter(h => h.result === 'wrong').length;
+    if (wr >= 2) level = qState.levels[0];
+    else if (wr === 0) level = qState.levels[qState.levels.length - 1];
+  }
+
+  const prevQs = qState.history.map(h => h.questionText).join('\n---\n');
+  const topicMap = {
+    SQL: 'SQL — window functions (ROW_NUMBER, RANK, LAG/LEAD), CTEs, query optimization, indexes, EXPLAIN plans, NULL handling, GROUP BY vs HAVING, partitioning',
+    Python: 'Python for data engineering — pandas, PySpark, generators, error handling in pipelines, type hints, writing efficient ETL code, decorators',
+    Cloud: 'Cloud & data platforms — Microsoft Fabric, GCP BigQuery, Azure Data Factory, Databricks, medallion architecture, Delta Lake, data lakehouse vs warehouse',
+    Modeling: 'Data modeling — star schema, snowflake schema, SCD types 1/2/3, Data Vault, dimensional modeling, surrogate vs natural keys, 3NF',
+    ETL: 'ETL & pipelines — Airflow, dbt, incremental loading, idempotency, CDC (change data capture), schema drift, data quality, late-arriving data',
+    Architecture: 'Data architecture — Lambda vs Kappa, Kafka/event streaming, data mesh, data contracts, observability, orchestration vs transformation layers',
+    AWS: 'AWS for data engineering — S3, Glue, Redshift, EMR, Lake Formation, cost optimization, data lake design, serverless pipelines',
+    Docker: 'Docker & containerization — image building, optimization, docker-compose, health checks, logging, multi-stage builds, registry management',
+    Airbyte: 'Airbyte & data integration — connectors, incremental syncs, transformations, sync policies, monitoring, troubleshooting, custom connectors',
+    Linux: 'Linux & command line — bash scripting, file permissions, SSH, package management, process management, monitoring, networking tools'
+  };
+  const levelMap = { Junior: 'junior to mid-level', Senior: 'senior-level', Architect: 'principal/architect-level' };
+
+  try {
+    if (shouldCaseStudy && !qState.caseStudy) {
+      // Generate a case study scenario
+      const caseStudyPrompt = `You are a data engineering interview expert. Generate ONE realistic case study scenario for a ${levelMap[level]||'senior-level'} data engineer Gorilla assessment.
+
+Topic area: ${topicMap[topic]||topic}
+
+The scenario should describe a real-world data engineering challenge (e.g., building a pipeline for a retailer, migrating a data warehouse, setting up real-time analytics, handling schema changes).
+
+Then generate 3 follow-up multiple-choice questions based on this scenario. Each question should test different aspects: design decision, troubleshooting, optimization, or tools.
+
+Rules:
+- Scenario: 2-3 sentences, practical and realistic
+- Each question gets 4 options (A-D), exactly one correct
+- Wrong options must be plausible
+- Vary the question types: architecture, implementation, troubleshooting
+- All questions must reference the scenario explicitly
+
+Respond ONLY with valid JSON, no markdown fences:
+{"scenario":"...","questions":[{"type":"architecture|implementation|troubleshooting","question":"...","subtitle":"...or empty","code":"...or empty","options":["A) ...","B) ...","C) ...","D) ..."],"answer":0,"explanation":"..."},{"type":"...","question":"...","options":["A) ...","B) ...","C) ...","D) ..."],"answer":0,"explanation":"..."},{"type":"...","question":"...","options":["A) ...","B) ...","C) ...","D) ..."],"answer":0,"explanation":"..."}]}`;
+
+      const res = await fetch('/api/claude', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 2000, messages: [{ role: 'user', content: caseStudyPrompt }] })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      const raw = data.content.map(c => c.text||'').join('').replace(/```json|```/g,'').trim();
+      const cs = JSON.parse(raw);
+      qState.caseStudy = cs;
+      qState.caseStudyQuestionCount = 0;
+    }
+
+    // If we're in a case study, pop the next question from it
+    if (qState.caseStudy && qState.caseStudyQuestionCount < qState.caseStudy.questions.length) {
+      const csQ = qState.caseStudy.questions[qState.caseStudyQuestionCount];
+      const q = { 
+        topic, level, type: csQ.type, 
+        question: csQ.question, 
+        subtitle: csQ.subtitle || `Case Study: ${qState.caseStudy.scenario}`,
+        code: csQ.code || '',
+        options: csQ.options, 
+        answer: csQ.answer, 
+        explanation: csQ.explanation,
+        caseStudy: true,
+        caseStudyNum: qState.caseStudyQuestionCount + 1,
+        caseStudyTotal: qState.caseStudy.questions.length
+      };
+      qState.caseStudyQuestionCount++;
+      qState.questions.push(q);
+      renderQuestion(q);
+    } else {
+      // Regular single question
+      qState.caseStudy = null;
+      qState.caseStudyQuestionCount = 0;
+      const prompt = `You are a data engineering interview expert. Generate ONE multiple-choice question for a ${levelMap[level]||'senior-level'} data engineer Gorilla assessment.
+
+Topic: ${topicMap[topic]||topic}
+${prevQs ? `Do NOT repeat these previous questions:\n${prevQs}` : ''}
+
+Rules:
+- Practical, realistic — the kind asked in actual technical assessments
+- 4 options (A-D), exactly one correct
+- Wrong options must be plausible
+- Explanation must be detailed: why correct is right AND why others are wrong
+- Vary type: conceptual / code output / debug / scenario / best-practice
+- If code is involved, include a SHORT snippet
+
+Respond ONLY with valid JSON, no markdown fences:
+{"topic":"${topic}","level":"${level}","type":"conceptual|code|scenario|debug","question":"...","subtitle":"...or empty","code":"...or empty","options":["A) ...","B) ...","C) ...","D) ..."],"answer":0,"explanation":"..."}`;
+
+      const res = await fetch('/api/claude', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      const raw = data.content.map(c => c.text||'').join('').replace(/```json|```/g,'').trim();
+      const q = JSON.parse(raw);
+      qState.questions.push(q);
+      renderQuestion(q);
+    }
+  } catch(e) {
+    document.getElementById('question-area').innerHTML = `<div class="loading-msg">Error: ${e.message}. <a href="#" onclick="loadQuestion()" style="color:var(--accent)">Retry</a></div>`;
+    return;
+  }
+
+  qState.qStart = Date.now();
+  if (qState.mode === 'timed') startTimer();
+}
+
+function renderQuestion(q) {
+  const code = q.code ? `<pre class="code-block">${escapeHtml(q.code)}</pre>` : '';
+  const sub = q.subtitle ? `<div class="question-sub">${escapeHtml(q.subtitle)}</div>` : '';
+  const caseLabel = q.caseStudy ? `<span class="tag" style="background: rgba(255,107,53,0.15); color: var(--accent2);">📋 Case Study ${q.caseStudyNum}/${q.caseStudyTotal}</span>` : '';
+  const opts = q.options.map((o, i) => `
+    <button class="option-item" id="opt-${i}" onclick="selectOption(${i})">
+      <span class="option-label">${String.fromCharCode(65+i)}</span>
+      <span>${escapeHtml(o.replace(/^[A-D]\)\s*/,''))}</span>
+    </button>`).join('');
+  document.getElementById('question-area').innerHTML = `
+    <div class="question-card">
+      <div class="q-meta-row"><span class="tag tag-topic">${q.topic}</span><span class="tag tag-level">${q.level}</span><span class="tag tag-type">${q.type}</span>${caseLabel}</div>
+      <div class="question-text">${q.question}</div>${sub}${code}
+      <ul class="options-list" id="options-list">${opts}</ul>
+      <div class="feedback-box" id="feedback-box"></div>
+    </div>`;
+  document.getElementById('action-row').style.display = 'flex';
+  const btn = document.getElementById('submit-btn');
+  btn.style.display = 'inline-flex';
+  btn.textContent = 'Submit Answer';
+}
+
+function selectOption(idx) {
+  if (qState.answered) return;
+  qState.selected = idx;
+  document.querySelectorAll('.option-item').forEach((el, i) => el.classList.toggle('selected', i === idx));
+}
+
+function submitAnswer() {
+  if (qState.answered) { nextQuestion(); return; }
+  if (qState.selected === null) { skipQuestion(); return; }
+  qState.answered = true;
+  clearInterval(qState.timerInterval);
+  document.getElementById('timer').style.display = 'none';
+  const q = qState.questions[qState.idx];
+  const correct = qState.selected === q.answer;
+  qState.timeTaken.push(Math.round((Date.now() - qState.qStart) / 1000));
+  document.querySelectorAll('.option-item').forEach((el, i) => {
+    el.classList.add('disabled');
+    if (i === q.answer) el.classList.add('correct');
+    else if (i === qState.selected && !correct) el.classList.add('wrong');
+  });
+  const fb = document.getElementById('feedback-box');
+  if (correct) {
+    qState.score++; qState.streak++;
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = `<div class="feedback-title">✓ Correct!</div>${q.explanation}`;
+  } else {
+    qState.streak = 0; qState.wrong++;
+    fb.className = 'feedback-box show wrong-fb';
+    fb.innerHTML = `<div class="feedback-title">✗ Incorrect</div>${q.explanation}`;
+  }
+  qState.history.push({ result: correct ? 'correct' : 'wrong', questionText: q.question, topic: q.topic, level: q.level, yourAnswer: q.options[qState.selected], correctAnswer: q.options[q.answer] });
+  document.getElementById('hdr-score').textContent = `${qState.score}/${qState.idx+1}`;
+  document.getElementById('hdr-streak').textContent = `${qState.streak}🔥`;
+  const btn = document.getElementById('submit-btn');
+  btn.textContent = qState.idx < qState.totalQuestions - 1 ? 'Next Question →' : 'See Results →';
+}
+
+function skipQuestion() {
+  clearInterval(qState.timerInterval);
+  document.getElementById('timer').style.display = 'none';
+  qState.skipped++; qState.streak = 0;
+  const q = qState.questions[qState.idx];
+  qState.history.push({ result: 'skipped', questionText: q ? q.question : '(loading)', topic: q?.topic||'?', level: q?.level||'?', yourAnswer: 'Skipped', correctAnswer: q ? q.options[q.answer] : '?' });
+  document.getElementById('hdr-streak').textContent = `${qState.streak}🔥`;
+  nextQuestion();
+}
+
+function nextQuestion() { qState.idx++; loadQuestion(); }
+
+function startTimer() {
+  qState.timeLeft = 90;
+  const el = document.getElementById('timer');
+  el.style.display = 'block'; el.className = 'timer';
+  clearInterval(qState.timerInterval);
+  qState.timerInterval = setInterval(() => {
+    qState.timeLeft--;
+    const m = Math.floor(qState.timeLeft/60), s = qState.timeLeft%60;
+    el.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+    if (qState.timeLeft <= 20) el.className = 'timer warn';
+    if (qState.timeLeft <= 10) el.className = 'timer danger';
+    if (qState.timeLeft <= 0) { clearInterval(qState.timerInterval); if (!qState.answered) skipQuestion(); }
+  }, 1000);
+}
+
+function updateProgress() {
+  document.getElementById('progress-fill').style.width = (qState.idx / qState.totalQuestions * 100) + '%';
+}
+
+function showResults() {
+  showPage('results');
+  const correct = qState.history.filter(h => h.result === 'correct').length;
+  const pct = Math.round((correct / qState.totalQuestions) * 100);
+  const avg = qState.timeTaken.length ? Math.round(qState.timeTaken.reduce((a,b)=>a+b,0)/qState.timeTaken.length) : 0;
+  document.getElementById('final-score').textContent = pct + '%';
+  document.getElementById('r-correct').textContent = correct;
+  document.getElementById('r-wrong').textContent = qState.wrong;
+  document.getElementById('r-skipped').textContent = qState.skipped;
+  document.getElementById('r-time').textContent = avg + 's';
+  const grades = [[90,'🔥 Gorilla-Tier'],[75,'💪 Strong DE'],[60,'📈 Getting There'],[0,'🛠️ Keep Grinding']];
+  document.getElementById('grade-label').textContent = grades.find(g => pct >= g[0])[1];
+  const arc = document.getElementById('score-arc');
+  setTimeout(() => { arc.style.transition = 'stroke-dashoffset 1s ease'; arc.style.strokeDashoffset = 446.1 - (446.1 * pct / 100); }, 100);
+  document.getElementById('review-list').style.display = 'none';
+  
+  // Calculate weak topics
+  const wrongByTopic = {};
+  qState.history.filter(h => h.result === 'wrong').forEach(h => {
+    wrongByTopic[h.topic] = (wrongByTopic[h.topic] || 0) + 1;
+  });
+  const weakTopics = Object.entries(wrongByTopic).sort((a, b) => b[1] - a[1]).slice(0, 3);
+  
+  if (weakTopics.length > 0) {
+    qState.weakTopics = weakTopics.map(t => t[0]);
+    const weakSection = document.getElementById('weak-topics-section');
+    weakSection.style.display = 'block';
+    const list = document.getElementById('weak-topics-list');
+    list.innerHTML = weakTopics.map(([topic, count]) => `
+      <button class="learn-card" style="display: inline-block; width: 100%; text-align: left; margin-bottom: 12px;" onclick="goStudyTopic('${topic}')">
+        <strong>${topic}</strong> — You got ${count} wrong · <span style="color: var(--accent3);">Click to study →</span>
+      </button>`).join('');
+  } else {
+    document.getElementById('weak-topics-section').style.display = 'none';
+  }
+  
+  saveState();
+}
+
+function showReview() {
+  const el = document.getElementById('review-list');
+  el.style.display = 'block';
+  el.innerHTML = '<div class="review-title">Answer Review</div>' + qState.history.map((h, i) => `
+    <div class="review-item r-${h.result}">
+      <div class="review-q">Q${i+1} · ${h.topic} · ${h.level}<br>${h.questionText.substring(0,120)}${h.questionText.length>120?'…':''}</div>
+      <div class="review-ans">Your answer: <span>${h.yourAnswer}</span> · Correct: <span style="color:var(--correct)">${h.correctAnswer}</span></div>
+    </div>`).join('');
+}
+
+function goStudyTopic(topic) {
+  const topicMap = {
+    SQL: 'sql',
+    Python: 'python',
+    Cloud: 'cloud',
+    Modeling: 'modeling',
+    ETL: 'etl',
+    Architecture: 'architecture',
+    AWS: 'aws',
+    Docker: 'docker',
+    Airbyte: 'airbyte',
+    Linux: 'linux'
+  };
+  const topicId = topicMap[topic];
+  if (topicId) {
+    showPage('learn');
+    setTimeout(() => openLesson(topicId), 100);
+  }
+}
+
+function goStudyWeakTopics() {
+  if (qState.weakTopics && qState.weakTopics.length > 0) {
+    goStudyTopic(qState.weakTopics[0]);
+  }
+}
+
+function resetQuiz() {
+  document.getElementById('hdr-score').textContent = '—';
+  document.getElementById('hdr-streak').textContent = '0🔥';
+  showPage('quiz-home');
+}
+
+function quitQuiz() {
+  if (qState.idx > 0 && !confirm('Are you sure? Your progress will be lost.')) return;
+  resetQuiz();
+}
+
+function escapeHtml(str) {
+  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── INIT
+initLearnGrid();
+loadState();
+showPage('home');
+
+// ════════════════════════════════════════
+// TEXT-TO-SPEECH
+// ════════════════════════════════════════
+let ttsState = { synth: null, utterance: null, isPaused: false, fullText: '' };
+
+function initTTS() {
+  if (!ttsState.synth) {
+    ttsState.synth = window.speechSynthesis;
+  }
+}
+
+function extractTextFromLesson() {
+  const contentDiv = document.getElementById('lesson-content');
+  const bodyDiv = contentDiv.querySelector('.lesson-body');
+  if (!bodyDiv) return '';
+  
+  // Extract all text content, preserve structure
+  let text = '';
+  bodyDiv.querySelectorAll('h3, p, li, code, pre').forEach(el => {
+    let nodeText = el.textContent.trim();
+    if (nodeText) {
+      text += nodeText + '. ';
+    }
+  });
+  return text;
+}
+
+function speakLesson() {
+  initTTS();
+  
+  // Cancel any ongoing speech
+  ttsState.synth.cancel();
+  
+  const text = extractTextFromLesson();
+  if (!text) {
+    alert('No lesson content to speak');
+    return;
+  }
+  
+  ttsState.fullText = text;
+  ttsState.isPaused = false;
+  
+  ttsState.utterance = new SpeechSynthesisUtterance(text);
+  ttsState.utterance.rate = parseFloat(document.getElementById('tts-speed').value) || 1;
+  ttsState.utterance.pitch = 1;
+  ttsState.utterance.volume = 1;
+  
+  ttsState.utterance.onstart = () => {
+    document.getElementById('tts-play').style.display = 'none';
+    document.getElementById('tts-pause').style.display = 'inline-flex';
+    document.getElementById('tts-stop').style.display = 'inline-flex';
+    document.getElementById('tts-play').classList.add('playing');
+  };
+  
+  ttsState.utterance.onend = () => {
+    document.getElementById('tts-play').style.display = 'inline-flex';
+    document.getElementById('tts-pause').style.display = 'none';
+    document.getElementById('tts-stop').style.display = 'none';
+    document.getElementById('tts-play').classList.remove('playing');
+  };
+  
+  ttsState.synth.speak(ttsState.utterance);
+}
+
+function pauseLesson() {
+  if (ttsState.synth.paused) {
+    ttsState.synth.resume();
+    document.getElementById('tts-pause').textContent = '⏸ Pause';
+  } else {
+    ttsState.synth.pause();
+    document.getElementById('tts-pause').textContent = '▶ Resume';
+  }
+}
+
+function stopLesson() {
+  ttsState.synth.cancel();
+  document.getElementById('tts-play').style.display = 'inline-flex';
+  document.getElementById('tts-pause').style.display = 'none';
+  document.getElementById('tts-stop').style.display = 'none';
+  document.getElementById('tts-pause').textContent = '⏸ Pause';
+  document.getElementById('tts-play').classList.remove('playing');
+}
+
+// Update speech rate when changed
+document.addEventListener('DOMContentLoaded', () => {
+  const speedSelect = document.getElementById('tts-speed');
+  if (speedSelect) {
+    speedSelect.addEventListener('change', (e) => {
+      if (ttsState.utterance && ttsState.synth.speaking) {
+        ttsState.synth.cancel();
+        setTimeout(speakLesson, 100);
+      }
+    });
+  }
+});
+</script>
+</body>
+</html>
